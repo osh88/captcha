@@ -102,7 +102,7 @@ Installation
 
 The preferred installation method is [composer](https://getcomposer.org):
 
-    php composer.phar require osh88/captcha
+    composer require "osh88/captcha:*@dev"
 
 License
 -------
