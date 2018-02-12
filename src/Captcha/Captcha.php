@@ -25,10 +25,10 @@ class Captcha {
         $this->setKey(Encrypter::generateKey($this->cipher));
 
         // set defaults for PhpCaptcha
-        $this->SetFonts([ dirname(__FILE__).'/fonts/moster.ttf' ]);
-        $this->SetNumChars(5);
-        $this->SetWidth(200); // 200, max 500
-        $this->SetHeight(50); // 50, max 200
+        $this->setFonts([ dirname(__FILE__).'/fonts/moster.ttf' ]);
+        $this->setNumChars(5);
+        $this->setWidth(200); // 200, max 500
+        $this->setHeight(50); // 50, max 200
     }
 
     /**
@@ -71,7 +71,7 @@ class Captcha {
      */
     public function sendImage($captcha) {
         $c = $this->decryptCaptcha($captcha);
-        $this->Create($c);
+        $this->create($c);
     }
 
     /**
@@ -99,7 +99,7 @@ class Captcha {
     }
 
     /**
-     * @param $key
+     * @param string $key length [16|32] bytes
      * @return $this
      */
     public function setKey($key) {
@@ -164,65 +164,65 @@ class Captcha {
     private $iMaxFontSize = 25;
     private $bUseColour = false;
 
-    public function SetFonts($fonts) {
+    public function setFonts($fonts) {
         $this->aFonts = $fonts;
         return $this;
     }
 
-    private function CalculateSpacing() {
+    private function calculateSpacing() {
         $this->iSpacing = (int)($this->iWidth / $this->iNumChars);
     }
 
-    public function SetWidth($iWidth) {
+    public function setWidth($iWidth) {
         $this->iWidth = $iWidth;
         if ($this->iWidth > 500) $this->iWidth = 500; // to prevent perfomance impact
-        $this->CalculateSpacing();
+        $this->calculateSpacing();
         return $this;
     }
 
-    public function SetHeight($iHeight) {
+    public function setHeight($iHeight) {
         $this->iHeight = $iHeight;
         if ($this->iHeight > 200) $this->iHeight = 200; // to prevent performance impact
         return $this;
     }
 
-    public function SetNumChars($iNumChars) {
+    public function setNumChars($iNumChars) {
         $this->iNumChars = $iNumChars;
-        $this->CalculateSpacing();
+        $this->calculateSpacing();
         return $this;
     }
 
-    public function SetNumLines($iNumLines) {
+    public function setNumLines($iNumLines) {
         $this->iNumLines = $iNumLines;
         return $this;
     }
 
-    public function DisplayShadow($bCharShadow) {
+    public function setDisplayShadow($bCharShadow) {
         $this->bCharShadow = $bCharShadow;
         return $this;
     }
 
-    public function SetBackgroundImages($vBackgroundImages) {
+    public function setBackgroundImages($vBackgroundImages) {
         $this->vBackgroundImages = $vBackgroundImages;
         return $this;
     }
 
-    public function SetMinFontSize($iMinFontSize) {
+    public function setMinFontSize($iMinFontSize) {
         $this->iMinFontSize = $iMinFontSize;
         return $this;
     }
 
-    public function SetMaxFontSize($iMaxFontSize) {
+    public function setMaxFontSize($iMaxFontSize) {
         $this->iMaxFontSize = $iMaxFontSize;
         return $this;
     }
 
-    public function UseColour($bUseColour) {
+    public function setColored($bUseColour) {
         $this->bUseColour = $bUseColour;
         return $this;
     }
 
-    private function DrawLines() {
+    private function drawLines() {
         for ($i = 0; $i < $this->iNumLines; $i++) {
             // allocate colour
             if ($this->bUseColour) {
@@ -237,8 +237,8 @@ class Captcha {
         }
     }
 
-    private function DrawCharacters($sCode) {
-        $this->SetNumChars(mb_strlen($sCode));
+    private function drawCharacters($sCode) {
+        $this->setNumChars(mb_strlen($sCode));
 
         // loop through and write out selected number of characters
         for ($i = 0; $i < mb_strlen($sCode); $i++) {
@@ -295,7 +295,7 @@ class Captcha {
         }
     }
 
-    private function Create($sCode) {
+    private function create($sCode) {
         // check for required gd functions
         if (!function_exists('imagecreate') || !function_exists("imagejpeg") || ($this->vBackgroundImages != '' && !function_exists('imagecreatetruecolor'))) {
             return false;
@@ -328,10 +328,10 @@ class Captcha {
 
         // check for background image before drawing lines
         if (!is_array($this->vBackgroundImages) && $this->vBackgroundImages == '') {
-            $this->DrawLines();
+            $this->drawLines();
         }
 
-        $this->DrawCharacters($sCode);
+        $this->drawCharacters($sCode);
 
         // write out image to browser
         header("Content-type: image/jpeg");
