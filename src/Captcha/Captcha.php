@@ -20,9 +20,16 @@ class Captcha {
     // encrypter instance
     private $encrypter = null;
 
-    public function __construct() {
-        // set defaults for Encrypter
-        $this->setKey(Encrypter::generateKey($this->cipher));
+    /**
+     * @param string $key length 16 bytes
+     */
+    public function __construct($key) {
+        if (!Encrypter::supported($key, $this->cipher)) {
+            throw new \Exception('Key not supported: length must be 16');
+        }
+
+        $this->key = $key;
+        $this->encrypter = new Encrypter($this->key);
 
         // set defaults for PhpCaptcha
         $this->setFonts([ dirname(__FILE__).'/fonts/moster.ttf' ]);
@@ -98,17 +105,6 @@ class Captcha {
         return $this->decryptCaptcha($captcha) === mb_strtolower($answer);
     }
 
-    /**
-     * @param string $key length [16|32] bytes
-     * @return $this
-     */
-    public function setKey($key) {
-        if ($key !== $this->key && Encrypter::supported($key, $this->cipher)) {
-            $this->key = $key;
-            $this->encrypter = new Encrypter($this->key);
-        }
-        return $this;
-    }
 
     /**
      * @return mixed

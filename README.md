@@ -1,7 +1,7 @@
 Captcha
 =======
 
-This is a PHP >= 5.4 captcha implementation.
+This is a PHP >= 7.0 captcha implementation.
 
 Example of use
 --------------
@@ -13,7 +13,7 @@ use Captcha\Captcha;
 public function register()
 {
     $this->app->singleton('Captcha\\Captcha', function($app) {
-        return (new Captcha)->setKey('1234567890123456');
+        return new Captcha('1234567890123456');
     });
 }
 ```
