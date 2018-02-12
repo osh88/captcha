@@ -1,5 +1,5 @@
 Captcha
-==========
+=======
 
 This is a PHP >= 5.4 captcha implementation.
 
