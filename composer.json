@@ -1,0 +1,22 @@
+{
+    "name": "osh88/captcha",
+    "description": "A PHP captcha implementation",
+    "keywords": ["captcha"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Oleg Shtykov",
+            "email": "oleg.shtykov@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "ext-gd": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Captcha\\": "src/Captcha/"
+        }
+    }
+}
