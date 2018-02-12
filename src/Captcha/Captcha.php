@@ -11,12 +11,6 @@ class Captcha {
         'num' => '0123456789',
     ];
 
-    // en|ru abc for captcha
-    private $lang = 'en';
-
-    // length of captcha
-    private $length = 5;
-
     // key for encrypt captcha
     private $key;
 
@@ -26,10 +20,7 @@ class Captcha {
     // encrypter instance
     private $encrypter = null;
 
-    // self instance
-    private static $instance = null;
-
-    private function __construct() {
+    public function __construct() {
         // set defaults for Encrypter
         $this->setKey(Encrypter::generateKey($this->cipher));
 
@@ -41,25 +32,24 @@ class Captcha {
     }
 
     /**
-     * @return Captcha
-     */
-    public static function instance() {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
-    /**
      * Create new encrypted captcha
      * @return mixed
      */
-    public function make() {
-        $chars  = $this->chars[$this->lang];
+    public function make($lang = 'en', $length = 5) {
+        if (!in_array($lang, ['ru','en'])) {
+            $lang = 'en';
+        };
+
+        $length = (int)$length;
+        if ($length < 1 || 10 < $length) {
+            $length = 5;
+        };
+
+        $chars  = $this->chars[$lang];
         $chars .= $this->chars['num'];
 
         $result = '';
-        for($i=0; $i<$this->length; $i++) {
+        for($i=0; $i<$length; $i++) {
             $result .= mb_substr($chars, rand(0, mb_strlen($chars)-1), 1);
         }
 
@@ -125,32 +115,6 @@ class Captcha {
      */
     public function getKey() {
         return $this->key;
-    }
-
-    /**
-     * @param $lang
-     * @return $this
-     */
-    public function setLang($lang) {
-        if (in_array($lang, ['ru','en'])) {
-            $this->lang = $lang;
-        };
-
-        return $this;
-    }
-
-    /**
-     * @param $length
-     * @return $this
-     */
-    public function setLength($length) {
-        $length = (int)$length;
-
-        if (1 <= $length && $length <= 10) {
-            $this->length = $length;
-        };
-
-        return $this;
     }
 
     /***************************************************************/

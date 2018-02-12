@@ -6,11 +6,21 @@ This is a PHP >= 5.4 captcha implementation.
 Example of use
 --------------
 
+app/Providers/AppServiceProvider.php:
+```php
+use Captcha\Captcha;
+
+public function register()
+{
+    $this->app->singleton('Captcha\\Captcha', function($app) {
+        return (new Captcha)->setKey('1234567890123456');
+    });
+}
+```
+
 routes/web.php:
 ```php
 <?php
-
-use Captcha\Captcha;
 
 Route::get('/', function () {
     return view('main');
@@ -21,20 +31,18 @@ Route::get('/captcha', function () {
     $length = request()->input('length', 5);
 
     $id = rand(1000, 100000);
-    $c = Captcha::instance()->newCaptcha($lang, $length);
+    $c = app('Captcha\\Captcha')->make($lang, $length);
     return view('captcha', compact('id', 'c'));
 });
 
 Route::get('/captcha/image', function () {
     $c = request()->input('c', null);
-    if (!$c) return;
-    Captcha::instance()->getImage($c);
+    app('Captcha\\Captcha')->sendImage($c);
 });
 
 Route::get('/captcha/audio', function () {
     $c = request()->input('c', null);
-    if (!$c) return;
-    Captcha::instance()->getAudio($c);
+    app('Captcha\\Captcha')->sendAudio($c);
 });
 
 Route::get('/captcha/check', function () {
@@ -42,9 +50,8 @@ Route::get('/captcha/check', function () {
     $a = request()->input('a', null);
 
     if (!$c || !$a) return 'false';
-    $result = Captcha::instance()->decryptCaptcha($c) === mb_strtolower($a);
 
-    return $result ? 'true':'false';
+    return app('Captcha\\Captcha')->verify($c, $a) ? 'true':'false';
 });
 ```
 resources/views/captcha.blade.php:
