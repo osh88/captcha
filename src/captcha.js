@@ -1,14 +1,18 @@
 'use strict';
 
 (function ( $ ) {
-    $.fn.captcha = function(lang, length) {
+    $.fn.captcha = function(lang, length, captchaDataName) {
 
         var $captcha = this;
         var $image = $captcha.find('img.captcha-image');
         var $audio = $captcha.find('audio.captcha-audio');
         var $play  = $captcha.find('.captcha-play');
 
-        $captcha.append('<input type="hidden" class="captcha-data" name="captcha-data">');
+        if (captchaDataName == undefined || captchaDataName == '') {
+            captchaDataName = 'captcha_data';
+        }
+
+        $captcha.append('<input type="hidden" class="captcha-data" name="'+captchaDataName+'">');
         var $data  = $captcha.find('.captcha-data');
 
         var update = function() {
