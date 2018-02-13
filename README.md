@@ -29,23 +29,7 @@ Route::get('/', function () {
 Route::get('/captcha', function () {
     $lang = request()->input('lang', 'en');
     $length = request()->input('length', 5);
-
-    $id = rand(1000, 100000);
-    $c = app('Captcha\\Captcha')->make($lang, $length);
-    return view('captcha', compact('id', 'c', 'lang', 'length'));
-});
-
-Route::get('/captcha/update', function () {
-    $lang = request()->input('lang', 'en');
-    $length = request()->input('length', 5);
-
-    $c = app('Captcha\\Captcha')->make($lang, $length);
-    $data = [
-        'captcha' => $c,
-        'image' => '/captcha/image?c=' . $c,
-        'audio' => '/captcha/audio?c=' . $c,
-    ];
-    return json_encode($data);
+    return app('Captcha\\Captcha')->make($lang, $length);
 });
 
 Route::get('/captcha/image', function () {
@@ -58,85 +42,38 @@ Route::get('/captcha/audio', function () {
     app('Captcha\\Captcha')->sendAudio($c);
 });
 
-Route::get('/captcha/check', function () {
-    $c = request()->input('c', null);
-    $a = request()->input('a', null);
-
-    if (!$c || !$a) return json_encode(['result' => false]);
-
-    return json_encode(['result' => app('Captcha\\Captcha')->verify($c, $a)]);
+Route::get('/captcha.js', function () {
+    return app('Captcha\\Captcha')->getCaptchaJS();
 });
 ```
-resources/views/captcha.blade.php:
-```html
-<style>
-    .captcha .image {
-        cursor: pointer;
-    }
-
-    .captcha .play {
-        font-size: x-large;
-        cursor: pointer;
-    }
-</style>
-
-<div class="captcha" id="captcha{{$id}}" data="{{$c}}">
-    <img class="image" src="/captcha/image?c={{$c}}"/>
-    <i class="play">&#9836;</i><br/>
-    <audio class="audio" src="/captcha/audio?c={{$c}}" preload="none"></audio>
-
-    <input class="answer" type="text"/>
-    <input class="check" type="button" value="Check">
-    <div class="result">---</div>
-
-    <script>
-        'use strict';
-
-        $(document).ready(function() {
-            var $captcha = $('#captcha{{$id}}');
-
-            $captcha.find('.check').click(function(){
-                var c = $captcha.attr('data');
-                var a = $captcha.find('.answer').val();
-
-                $.get('/captcha/check', {c:c, a:a}, function(data) {
-                    $captcha.find('.result').html(JSON.parse(data).result ? 'Yes':'No');
-                });
-            });
-
-            $captcha.find('.play').click(function(){
-                $captcha.find('.audio')[0].play();
-            });
-
-            $captcha.find('.image').click(function(){
-                $.get('/captcha/update', {lang:'{{$lang}}',length:'{{$length}}'}, function(data) {
-                    data = JSON.parse(data);
-                    $captcha.attr('data', data.captcha);
-                    $captcha.find('.image').attr('src', data.image);
-                    $captcha.find('.audio').attr('src', data.audio);
-                });
-            });
-        });
-    </script>
-</div>
-```
-
 resources/views/main.blade.php:
-```php
+```html
 <!doctype html>
-<html>
+<html lang="{{ app()->getLocale() }}">
     <head>
         <meta charset="utf-8">
         <script src="http://code.jquery.com/jquery-1.12.4.min.js"></script>
+        <script src="/captcha.js"></script>
     </head>
     <body>
-        <div id="c1"></div>
-        <div id="c2"></div>
+        <div id="c1">
+            <img class="captcha-image"/>
+            <i class="captcha-play">&#9836;</i><br/>
+            <audio class="captcha-audio"></audio>
+            <input name="captcha" type="text"/>
+        </div>
+
+        <div id="c2">
+            <img class="captcha-image"/>
+            <i class="captcha-play">&#9836;</i><br/>
+            <audio class="captcha-audio"></audio>
+            <input name="captcha" type="text"/>
+        </div>
 
     <script>
         $(document).ready(function(){
-            $.get('/captcha', {lang:'ru', length: 5}, function(data) { $('#c1').html(data); });
-            $.get('/captcha', {}, function(data) { $('#c2').html(data); });
+            $('#c1').captcha('ru','6');
+            $('#c2').captcha();
         });
     </script>
     </body>
@@ -149,6 +86,14 @@ Installation
 The preferred installation method is [composer](https://getcomposer.org):
 
     composer require "osh88/captcha:*@dev"
+
+Git
+
+	git clone https://github.com/osh88/captcha.git
+
+    require '/vendor/captcha/src/Captcha/Captcha.php';
+	require '/vendor/captcha/src/Captcha/Encrypter.php';
+
 
 License
 -------
