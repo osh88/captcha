@@ -32,7 +32,20 @@ Route::get('/captcha', function () {
 
     $id = rand(1000, 100000);
     $c = app('Captcha\\Captcha')->make($lang, $length);
-    return view('captcha', compact('id', 'c'));
+    return view('captcha', compact('id', 'c', 'lang', 'length'));
+});
+
+Route::get('/captcha/update', function () {
+    $lang = request()->input('lang', 'en');
+    $length = request()->input('length', 5);
+
+    $c = app('Captcha\\Captcha')->make($lang, $length);
+    $data = [
+        'captcha' => $c,
+        'image' => '/captcha/image?c=' . $c,
+        'audio' => '/captcha/audio?c=' . $c,
+    ];
+    return json_encode($data);
 });
 
 Route::get('/captcha/image', function () {
@@ -49,33 +62,58 @@ Route::get('/captcha/check', function () {
     $c = request()->input('c', null);
     $a = request()->input('a', null);
 
-    if (!$c || !$a) return 'false';
+    if (!$c || !$a) return json_encode(['result' => false]);
 
-    return app('Captcha\\Captcha')->verify($c, $a) ? 'true':'false';
+    return json_encode(['result' => app('Captcha\\Captcha')->verify($c, $a)]);
 });
 ```
 resources/views/captcha.blade.php:
-```php
-<div id="captcha{{$id}}">
-    <img id="image" src="/captcha/image?c={{$c}}"/>
-    <i style="font-size: x-large; cursor: pointer;" id="play">&#9836;</i><br/>
-    <audio id="audio" src="/captcha/audio?c={{$c}}" preload="none"></audio>
+```xml
+<style>
+    .captcha .image {
+        cursor: pointer;
+    }
 
-    <input type="text" id="answer"/>
-    <input type="button" value="Check" id="check">
-    <div id="result">---</div>
+    .captcha .play {
+        font-size: x-large;
+        cursor: pointer;
+    }
+</style>
+
+<div class="captcha" id="captcha{{$id}}" data="{{$c}}">
+    <img class="image" src="/captcha/image?c={{$c}}"/>
+    <i class="play">&#9836;</i><br/>
+    <audio class="audio" src="/captcha/audio?c={{$c}}" preload="none"></audio>
+
+    <input class="answer" type="text"/>
+    <input class="check" type="button" value="Check">
+    <div class="result">---</div>
 
     <script>
-        $(document).ready(function(){
-            $('#captcha{{$id}}').find('#check').click(function(){
-                var answer = $('#captcha{{$id}}').find('#answer').val();
-                $.get('/captcha/check', {'c':'{{$c}}', 'a': answer}, function(data) {
-                    $('#captcha{{$id}}').find('#result').html(data);
+        $(document).ready(function() {
+            var $captcha = $('#captcha{{$id}}');
+
+            $captcha.find('.check').click(function(){
+                var c = $captcha.attr('data');
+                var a = $captcha.find('.answer').val();
+
+                $.get('/captcha/check', {c:c, a:a}, function(data) {
+                    $captcha.find('.result').html(JSON.parse(data).result ? 'Yes':'No');
                 });
             });
 
-            $('#captcha{{$id}}').find('#play').click(function(){
-                $('#captcha{{$id}}').find('#audio')[0].play();
+            $captcha.find('.play').click(function(){
+                $captcha.find('.audio')[0].play();
+            });
+
+
+            $captcha.find('.image').click(function(){
+                $.get('/captcha/update', {lang:'{{$lang}}',length:'{{$length}}'}, function(data) {
+                    data = JSON.parse(data);
+                    $captcha.attr('data', data.captcha);
+                    $captcha.find('.image').attr('src', data.image);
+                    $captcha.find('.audio').attr('src', data.audio);
+                });
             });
         });
     </script>
