@@ -68,7 +68,7 @@ resources/views/main.blade.php:
     <script>
         $(document).ready(function(){
             $('#c1').captcha('ru','6');
-            $('#c2').captcha('en', '4', 'poll[answer]');
+            $('#c2').captcha('en', '4', 'poll[captcha_data]');
         });
     </script>
     </body>
