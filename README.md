@@ -68,7 +68,7 @@ Route::get('/captcha/check', function () {
 });
 ```
 resources/views/captcha.blade.php:
-```xml
+```html
 <style>
     .captcha .image {
         cursor: pointer;
