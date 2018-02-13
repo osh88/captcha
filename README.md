@@ -29,12 +29,12 @@ Route::get('/', function () {
 Route::get('/captcha', function () {
     $lang = request()->input('lang', 'en');
     $length = request()->input('length', 5);
-    return app('Captcha\\Captcha')->make($lang, $length);
-});
+    $c = app('Captcha\\Captcha')->make($lang, $length);
 
-Route::get('/captcha/image', function () {
-    $c = request()->input('c', null);
-    app('Captcha\\Captcha')->sendImage($c);
+    return json_encode([
+        'encCaptcha' => $c,
+        'image' => app('Captcha\\Captcha')->getImage($c),
+    ]);
 });
 
 Route::get('/captcha/audio', function () {
@@ -49,7 +49,7 @@ Route::get('/captcha.js', function () {
 resources/views/main.blade.php:
 ```html
 <!doctype html>
-<html lang="{{ app()->getLocale() }}">
+<html>
     <head>
         <meta charset="utf-8">
         <script src="http://code.jquery.com/jquery-1.12.4.min.js"></script>

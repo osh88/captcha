@@ -12,10 +12,12 @@
         var $data  = $captcha.find('.captcha-data');
 
         var update = function() {
-            $.get('/captcha', {lang:lang,length:length}, function(encCaptcha) {
-                $image.attr('src', '/captcha/image?c='+encCaptcha);
-                $audio.attr('src', '/captcha/audio?c='+encCaptcha);
-                $data.val(encCaptcha);
+            $.get('/captcha', {lang:lang,length:length}, function(r) {
+                r = JSON.parse(r);
+
+                $image.attr('src', r.image);
+                $audio.attr('src', '/captcha/audio?c=' + r.encCaptcha);
+                $data.val(r.encCaptcha);
             });
         };
 

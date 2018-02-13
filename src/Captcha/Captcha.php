@@ -76,9 +76,10 @@ class Captcha {
      * Send image file for captcha
      * @param string $captcha base64 encoded captcha data
      */
-    public function sendImage($captcha) {
+    public function getImage($captcha) {
         $c = $this->decryptCaptcha($captcha);
-        $this->create($c);
+        $data = $this->create($c);
+        return 'data:image/jpeg;base64,'.base64_encode($data);
     }
 
     /**
@@ -333,13 +334,14 @@ class Captcha {
 
         $this->drawCharacters($sCode);
 
-        // write out image to browser
-        header("Content-type: image/jpeg");
+        ob_start();
         imagejpeg($this->oImage);
+        $data = ob_get_contents();
+        ob_end_clean();
 
         // free memory used in creating image
         imagedestroy($this->oImage);
 
-        return true;
+        return $data;
     }
 }
