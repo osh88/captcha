@@ -90,6 +90,8 @@ resources/views/captcha.blade.php:
     <div class="result">---</div>
 
     <script>
+        'use strict';
+
         $(document).ready(function() {
             var $captcha = $('#captcha{{$id}}');
 
@@ -105,7 +107,6 @@ resources/views/captcha.blade.php:
             $captcha.find('.play').click(function(){
                 $captcha.find('.audio')[0].play();
             });
-
 
             $captcha.find('.image').click(function(){
                 $.get('/captcha/update', {lang:'{{$lang}}',length:'{{$length}}'}, function(data) {
