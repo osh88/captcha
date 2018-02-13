@@ -60,7 +60,10 @@ class Captcha {
             $result .= mb_substr($chars, rand(0, mb_strlen($chars)-1), 1);
         }
 
-        return $this->encrypter->encryptString($result);
+        return [
+            'data' => $this->encrypter->encryptString($result),
+            'image' => $this->getImage($result),
+        ];
     }
 
     /**
@@ -73,12 +76,11 @@ class Captcha {
     }
 
     /**
-     * Send image file for captcha
-     * @param string $captcha base64 encoded captcha data
+     * Get embedded format image
+     * @param string $captcha captcha
      */
-    public function getImage($captcha) {
-        $c = $this->decryptCaptcha($captcha);
-        $data = $this->create($c);
+    private function getImage($captcha) {
+        $data = $this->create($captcha);
         return 'data:image/jpeg;base64,'.base64_encode($data);
     }
 

@@ -64,7 +64,7 @@ class Encrypter
      */
     public static function generateKey($cipher)
     {
-        return random_bytes($cipher == 'AES-128-CBC' ? 16 : 32);
+        return self::random_bytes($cipher == 'AES-128-CBC' ? 16 : 32);
     }
 
     /**
@@ -78,7 +78,7 @@ class Encrypter
      */
     public function encrypt($value, $serialize = true)
     {
-        $iv = random_bytes(openssl_cipher_iv_length($this->cipher));
+        $iv = self::random_bytes(openssl_cipher_iv_length($this->cipher));
 
         // First we will encrypt the value using OpenSSL. After this is encrypted we
         // will proceed to calculating a MAC for the encrypted value so that this
@@ -216,9 +216,9 @@ class Encrypter
      */
     protected function validMac(array $payload)
     {
-        $calculated = $this->calculateMac($payload, $bytes = random_bytes(16));
+        $calculated = $this->calculateMac($payload, $bytes = self::random_bytes(16));
 
-        return hash_equals(
+        return self::hash_equals(
             hash_hmac('sha256', $payload['mac'], $bytes, true), $calculated
         );
     }
@@ -245,5 +245,28 @@ class Encrypter
     public function getKey()
     {
         return $this->key;
+    }
+
+    private static function hash_equals($str1, $str2) {
+        if (function_exists('hash_equals')) {
+            return hash_equals($str1, $str2);
+        } else {
+            if (strlen($str1) != strlen($str2)) {
+                return false;
+            } else {
+                $res = $str1 ^ $str2;
+                $ret = 0;
+                for ($i = strlen($res) - 1; $i >= 0; $i--) $ret |= ord($res[$i]);
+                return !$ret;
+            }
+        }
+    }
+
+    private static function random_bytes($length) {
+        if (function_exists('random_bytes')) {
+            return random_bytes($length);
+        } else {
+            return @mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
+        }
     }
 }

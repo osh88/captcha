@@ -1,7 +1,7 @@
 Captcha
 =======
 
-This is a PHP >= 7.0 captcha implementation.
+This is a PHP >= 5.4 captcha implementation.
 
 Example of use
 --------------
@@ -29,12 +29,7 @@ Route::get('/', function () {
 Route::get('/captcha', function () {
     $lang = request()->input('lang', 'en');
     $length = request()->input('length', 5);
-    $c = app('Captcha\\Captcha')->make($lang, $length);
-
-    return json_encode([
-        'encCaptcha' => $c,
-        'image' => app('Captcha\\Captcha')->getImage($c),
-    ]);
+    return json_encode(app('Captcha\\Captcha')->make($lang, $length));
 });
 
 Route::get('/captcha/audio', function () {

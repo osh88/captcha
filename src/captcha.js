@@ -16,8 +16,8 @@
                 r = JSON.parse(r);
 
                 $image.attr('src', r.image);
-                $audio.attr('src', '/captcha/audio?c=' + r.encCaptcha);
-                $data.val(r.encCaptcha);
+                $audio.attr('src', '/captcha/audio?c=' + r.data);
+                $data.val(r.data);
             });
         };
 
