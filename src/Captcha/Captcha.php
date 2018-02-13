@@ -113,6 +113,10 @@ class Captcha {
         return $this->key;
     }
 
+    public static function getCaptchaJS() {
+        return file_get_contents(dirname(dirname(__FILE__)).'/captcha.js');
+    }
+
     /***************************************************************/
     /* PhpCaptcha - A visual and audio CAPTCHA generation library
 
