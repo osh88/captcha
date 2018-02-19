@@ -1,6 +1,8 @@
 Captcha
 =======
 
+Ахтунг. капча не работает! похоже что это полная хрень.
+
 This is a PHP >= 5.4 captcha implementation.
 
 Example of use
