@@ -105,7 +105,11 @@ class Captcha {
      * @return bool
      */
     public function verify($captcha, $answer) {
-        return $this->decryptCaptcha($captcha) === mb_strtolower($answer);
+        try {
+            return $this->decryptCaptcha($captcha) === mb_strtolower($answer);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
 
