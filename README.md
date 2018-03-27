@@ -1,9 +1,6 @@
 Captcha
 =======
 
-    Ахтунг. капча не работает! похоже что это полная хрень..
-    Не реализовано одноразовое использование.
-
 This is a PHP >= 5.4 captcha implementation.
 
 Example of use
@@ -57,21 +54,19 @@ resources/views/main.blade.php:
         <div id="c1">
             <img class="captcha-image"/>
             <i class="captcha-play">&#9836;</i><br/>
-            <audio class="captcha-audio"></audio>
             <input name="captcha" type="text"/>
         </div>
 
         <div id="c2">
             <img class="captcha-image"/>
             <i class="captcha-play">&#9836;</i><br/>
-            <audio class="captcha-audio"></audio>
             <input name="captcha" type="text"/>
         </div>
 
     <script>
         $(document).ready(function(){
-            $('#c1').captcha('ru','6');
-            $('#c2').captcha('en', '4', 'poll[captcha_data]');
+            $('#c1').captcha(); // default params
+            $('#c2').captcha('ru', '6', 'poll[captcha_data]');
         });
     </script>
     </body>

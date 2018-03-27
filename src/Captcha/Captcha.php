@@ -4,6 +4,8 @@ namespace Captcha;
 
 use Captcha\Encrypter;
 
+const REGISTER_KEY = 'registered_captches';
+
 class Captcha {
     private $chars = [
         'ru' => 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя',
@@ -60,10 +62,56 @@ class Captcha {
             $result .= mb_substr($chars, rand(0, mb_strlen($chars)-1), 1);
         }
 
+        $this->register($result);
+
         return [
             'data' => $this->encrypter->encryptString($result),
             'image' => $this->getImage($result),
         ];
+    }
+
+    /**
+     * Регистрирует капчу.
+     * @param $captcha
+     */
+    private function register($captcha) {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION[REGISTER_KEY])) {
+            $_SESSION[REGISTER_KEY] = [];
+        }
+
+        $_SESSION[REGISTER_KEY][$captcha] = true;
+    }
+
+    /**
+     * Проверяет, создавали ли капчу
+     * @param $captcha
+     * @return bool
+     */
+    private function isRegistered($captcha) {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION[REGISTER_KEY])) {
+            return false;
+        }
+
+        return isset($_SESSION[REGISTER_KEY][$captcha]);
+    }
+
+    /**
+     * Удаляет капчу из реестра.
+     * После удаления капчи из реестра, она не будет считаться валидной.
+     * @param $captcha
+     */
+    private function unregister($captcha) {
+        if ($this->isRegistered($captcha)) {
+            unset($_SESSION[REGISTER_KEY][$captcha]);
+        }
     }
 
     /**
@@ -106,7 +154,21 @@ class Captcha {
      */
     public function verify($captcha, $answer) {
         try {
-            return $this->decryptCaptcha($captcha) === mb_strtolower($answer);
+            // получаем текст капчи
+            $captcha = $this->decryptCaptcha($captcha);
+
+            // если такую не создавали, уходим
+            if (!$this->isRegistered($captcha)) {
+                return false;
+            }
+
+            // проверяем правильность введенной капчи
+            $verified = $captcha === mb_strtolower($answer);
+
+            // если капча верна, удаляем ее из реестра
+            if ($verified) $this->unregister($captcha);
+
+            return $verified;
         } catch (\Exception $e) {
             return false;
         }
