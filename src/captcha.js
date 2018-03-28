@@ -18,7 +18,7 @@
         $image.off('click'); // убираем обработчики для капчи
 
         // Добавляем тег для воспроизведения аудиокапчи
-        $captcha.append('<audio class="captcha-audio" style="display: none;"></audio>');
+        $captcha.append('<audio class="captcha-audio" style="display: none;" preload="none"></audio>');
         var $audio = $captcha.find('audio.captcha-audio');
 
         // Добавляем поле для хранения шифрованой капчи
